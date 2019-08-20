@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>screenshot</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        screenshot demo
+        <input type="text" id="text1" value="https://papago.naver.com" />
+        <button id="btn1">send</button>
+        <div id="resultBox"></div>
+    </div>
+    <script>
+        //$('button:contains("send")').text()
+        $('#btn1').click(function(){
+            $.ajax({
+                type: "POST",
+                url: "/screenshot",
+                data: {
+                    url: $('#text1').val()
+                },
+                dataType: "json",
+                success: function (res) {
+                    console.log(res)
+                    if(res.status == 200) rs = '<img src="'+ res.src +'">';
+                    else rs = 'error';
+                    $('#resultBox').html(rs);
+                }
+            });
+        })
+    
+    </script>
+
+</body>
+</html>
