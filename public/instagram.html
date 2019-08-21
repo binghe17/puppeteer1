@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>instagram download demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+    body{ padding: 10px;}
+    .text-primary { color: #007bff!important; width: 25px; height: 25px; }
+    label {padding: 10px;}
+    label b {display:block; padding: 0 10px;}
+    input {width:500px;}
+    #resultText {width:100%; height:150px;}
+    </style>
+</head>
+<body>
+    <div>
+        <h3>instagram download demo</h3>
+        <label><b>image url:</b><input type="text" id="text1" value="https://www.instagram.com/p/BxPVxb6n7Cs/" /><button id="btn1">image down</button></label>
+        <label><b>video url:</b><input type="text" id="text2" value="https://www.instagram.com/p/BmpRca-nf4j/" /><button id="btn2">video down</button></label>
+
+        <span id="statusBox"></span>
+        <textarea id="resultText"></textarea>
+        <div id="resultBox"></div>
+    </div>
+    <script>
+        //$('button:contains("send")').text()
+        $('#btn1').click(function(){
+            $('#statusBox').html(`<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>`);
+            $.ajax({
+                type: "GET",
+                url: "/instagram/image",
+                data: {
+                    url: $('#text1').val()
+                },
+                dataType: "json",
+                success: function (res) {
+                    console.log(res)
+                    if(typeof res.file != 'undefined'){
+                        $('#resultText').html(JSON.stringify(res));
+                        $('#resultBox').html('<img src="'+ res.image_link + '" />');
+                    } else {
+                        $('#resultText').html('error');
+                        $('#resultBox').html('');
+                    }
+                    $('#statusBox').html('');
+                }
+            });
+        })
+        $('#btn2').click(function(){
+            $('#statusBox').html(`<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>`);
+            $.ajax({
+                type: "GET",
+                url: "/instagram/video",
+                data: {
+                    url: $('#text2').val()
+                },
+                dataType: "json",
+                success: function (res) {
+                    console.log(res)
+                    if(typeof res.file != 'undefined'){
+                        $('#resultText').html(JSON.stringify(res));
+                        $('#resultBox').html(`<video controls><source src="`+ res.video_link +`" type="video/mp4"></video>`);
+                    } else {
+                        $('#resultText').html('error');
+                        $('#resultBox').html('');
+                    }
+                    $('#statusBox').html('');
+                }
+            });
+        })
+    
+    </script>
+
+</body>
+</html>

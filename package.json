@@ -1,0 +1,17 @@
+{
+  "name": "puppeteer1",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./http.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
+    "crawler": "^1.2.1",
+    "express": "^4.16.2",
+    "node-image-downloader": "^1.0.7",
+    "puppeteer": "^1.19.0",
+    "request": "^2.83.0"
+  }
+}

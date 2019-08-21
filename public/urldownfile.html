@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>url down file</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+    body{ padding: 10px;}
+    .text-primary { color: #007bff!important; width: 25px; height: 25px; }
+    label {padding: 10px;}
+    label b {display:block; padding: 0 10px;}
+    textarea {font-size: 12px;}
+    #text1 {width:1100px; height:300px; }
+    #resultText {width:100%; height:150px;}
+    </style>
+</head>
+<body>
+    <div>
+        <h3>url down file</h3>
+        <label>
+            <b>download url:</b>
+            <textarea id="text1">
+https://scontent-icn1-1.cdninstagram.com/vp/0e4a88416dfe24cdc5747f1be5768fea/5E100C2F/t51.2885-15/e35/66487376_379703322746665_707429400672456346_n.jpg?_nc_ht=scontent-icn1-1.cdninstagram.com|insta.jpg
+https://naver.com|naver.txt
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlHRWOSZqgG8_mrQ6BZUI0kFDhPAWFRYWrrdRAEYJ73-IAydKh|image2.jpg
+https://noduslabs.com/wp-content/uploads/2015/07/connected-topics-clusters-text-network-analysis.jpg|my-image-file-name
+https://techcrunch.com/wp-content/uploads/2015/08/safe_image.gif
+</textarea>
+            <button id="btn1">image down</button>
+        </label>
+
+        <span id="statusBox"></span>
+        <textarea id="resultText"></textarea>
+        <div id="resultBox"></div>
+    </div>
+    <script>
+        //$('button:contains("send")').text()
+        $('#btn1').click(function(){
+            let sendData = textarea2data($('#text1').val())
+            console.log(sendData)
+            
+            $('#statusBox').html(`<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>`);
+            $.ajax({
+                type: "POST",
+                url: "/urldownfile",
+                data: {
+                    data: JSON.stringify(sendData)
+                },
+                dataType: "json",
+                success: function (res) {
+                    console.log(res)
+                    if(typeof res.datas != 'undefined'){
+                        $('#resultText').html(JSON.stringify(res));
+                        let rs = '';
+                        if(res.datas.length > 0){
+                            for (let i = 0; i < res.datas.length; i++) {
+                                rs += '<a href="'+ res.datas[i].path + '" target="_blank">['+ timestamp2date(res.datas[i].savedAt) +'] '+ res.datas[i].path +' (' + res.datas[i].size +")</a><br>";
+                            }
+                        }
+                        $('#resultBox').html(rs);
+                    } else {
+                        $('#resultText').html('error');
+                        // $('#resultBox').html('');
+                    }
+                    $('#statusBox').html('');
+                }
+            });
+        })
+
+
+        function textarea2data(data, r1="\n", c1='|'){
+            var rs = [];
+            if(data.trim().length == 0) return ; 
+            data = data.split(r1)
+            // console.log(data,data.length)
+            if(data.length > 0 ){
+                for (let i = 0; i < data.length; i++) {
+                    if(data[i].trim().length == 0) continue;
+                    let dd = data[i].split(c1);
+                    // console.log(dd[0], dd[1])
+                    let tmp = {};
+                    tmp['uri'] = dd[0];
+                    if(typeof dd[1] != 'undefined') tmp['filename'] = dd[1];
+                    rs.push(tmp)
+                }
+                // console.log(rs)
+            }
+            return rs;
+        }
+
+        function timestamp2date(date){
+            var format = new Date(date);
+            var year = format.getFullYear();
+            var month = format.getMonth() + 1;
+            if(month<10) month = '0' + month;
+            var date = format.getDate();
+            if(date<10) date = '0' + date;
+            var hour = format.getHours();
+            if(hour<10) hour = '0' + hour;
+            var min = format.getMinutes();
+            if(min<10) min = '0' + min;
+            var sec = format.getSeconds();
+            if(sec<10) sec = '0' + sec;
+            return year + "-" + month + "-" + date + " " + hour + ":" + min + ":" + sec;
+        }
+    
+    </script>
+
+</body>
+</html>

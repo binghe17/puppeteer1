@@ -16,9 +16,25 @@ autoRoutes(path.join(__dirname, './controllers')); // auto mounting... done!
 //--------------------------
 
 
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({
+    extended: true
+})); // support encoded bodies
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 app.set('env', process.env.NODE_ENV || 'production')// development
 app.set('x-powered-by', false)
 app.set('trust proxy', false)
+
+
+
+//--------------
+
 
 app.get('/', (req,res,next)=>{
 	res.sendFile(path.join(__dirname + '/public/index.html'));
@@ -34,6 +50,23 @@ app.get('/other', (req,res,next)=>{
 });
 
 
+
+
+//--------------instagram download
+
+app.get('/instagram', (req,res,next)=>{
+	res.sendFile(path.join(__dirname + '/public/instagram.html'));
+});
+
+let insta_video = require('./routes/insta_video');
+let insta_image = require('./routes/insta_image');
+
+app.get('/instagram/video', insta_video); // http://localhost/instagram/video?url=https://www.instagram.com/p/BxPVxb6n7Cs/
+app.get('/instagram/image', insta_image); // http://localhost/instagram/image?url=https://www.instagram.com/p/BmpRca-nf4j/
+
+
+//-------------
+
 // app.get('/screenshot', (req,res,next)=>{
 // 	res.sendFile(path.join(__dirname + '/public/screenshot.html'));
 // });
@@ -48,6 +81,7 @@ app.get('/other', (req,res,next)=>{
 // );
 
 
+//--------------
 
 app.use(express.static(__dirname + '/public')); //static dir
 
@@ -55,6 +89,8 @@ app.use(express.static(__dirname + '/public')); //static dir
 const PORT = 80
 let httpServer = http.createServer(app)
 httpServer.listen(PORT, function () {
-	console.log('[Http] Started.', PORT)
+	var host = httpServer.address().address
+	var port = httpServer.address().port
+	console.log('[Http] Started.', host, port)
 })
 
