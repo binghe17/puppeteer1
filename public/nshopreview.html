@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>naver shop review</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+    body{ padding: 10px;}
+    .text-primary { color: #007bff!important; width: 25px; height: 25px; }
+    label {padding: 10px;}
+    textarea {font-size: 12px;}
+    #text1 {width:700px;  }
+    #resultText {width:100%; height:150px;}
+    </style>
+</head>
+<body>
+    <div>
+        <h3>naver shop review to Excel</h3>
+        <label>
+            <b>product url:</b>
+            <input type="text" id="text1" value="https://search.shopping.naver.com/detail/detail.nhn?nv_mid=20573484464&cat_id=50004594&frm=NVSHATC&query=%EA%B0%A4%EB%9F%AD%EC%8B%9C%EB%85%B8%ED%8A%B810%ED%94%8C%EB%9F%AC%EC%8A%A4+%EC%BC%80%EC%9D%B4%EC%8A%A4&NaPm=ct%3Djzm57gvk%7Cci%3D4a2a3de16946fc71f7df3898e75171ad2bdb4841%7Ctr%3Dslsl%7Csn%3D95694%7Chk%3D49db2cf11a6ea9c3fdae5b5ff43cf8152af6b882" />
+            <button id="btn1">send</button>
+        </label>
+
+        <span id="statusBox"></span>
+        <textarea id="resultText"></textarea>
+        <div id="resultBox"></div>
+    </div>
+    <script>
+        //$('button:contains("send")').text()
+        $('#btn1').click(function(){
+            let urlParam = url2obj( decodeURI($('#text1').val()) )
+            urlParam.NaPm = decodeURIComponent(urlParam.NaPm);
+            urlParam.url = ''+ $('#text1').val() ;
+            console.log(urlParam);
+
+
+            
+            $('#statusBox').html(`<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>`);
+            $.ajax({
+                type: "POST",
+                url: "",
+                data: urlParam,
+                dataType: "json",
+                success: function (res) {
+                    console.log(res)
+                    $('#resultText').html(JSON.stringify(res));
+                    rs = `<a href="nshopreview.pdf" target="_blank">show pdf file</a>`;
+                    $('#resultBox').html(rs);
+
+                    $('#statusBox').html('');
+                }
+            });
+        })
+
+
+
+        function url2obj(url) {    //URL param value
+            url = url || window.location.href;
+            var rs = {};
+            var hashes = url.slice(url.indexOf('?') + 1).split('&');
+            for(var i = 0; i < hashes.length; i++){
+                let hash = hashes[i].split('=');
+                rs[hash[0]] = hash[1];
+            }
+            return rs;
+        }
+
+        // function timestamp2date(date){
+        //     var format = new Date(date);
+        //     var year = format.getFullYear();
+        //     var month = format.getMonth() + 1;
+        //     if(month<10) month = '0' + month;
+        //     var date = format.getDate();
+        //     if(date<10) date = '0' + date;
+        //     var hour = format.getHours();
+        //     if(hour<10) hour = '0' + hour;
+        //     var min = format.getMinutes();
+        //     if(min<10) min = '0' + min;
+        //     var sec = format.getSeconds();
+        //     if(sec<10) sec = '0' + sec;
+        //     return year + "-" + month + "-" + date + " " + hour + ":" + min + ":" + sec;
+        // }
+    
+    </script>
+
+</body>
+</html>
