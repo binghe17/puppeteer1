@@ -22,7 +22,8 @@ exports.post = function (req, res, next) {
         // console.log('-----------start')
     
         const gotoUrl = param.url || 'https://papago.naver.com/';
-        const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1';
+        console.log(gotoUrl)
+        //const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1';
         const launchConf = {
             // headless: false, //false is show
             // executablePath:'/opt/google/chrome/chrome',
@@ -32,24 +33,78 @@ exports.post = function (req, res, next) {
     
         const browser = await puppeteer.launch(launchConf);
         const page = await browser.newPage();
-        await page.setUserAgent(userAgent);
+        //await page.setUserAgent(userAgent);
         await page.setViewport({ width:1280, height:768 });
         await page.goto(gotoUrl, { waitUntil: 'networkidle2' });
-        // await page.waitFor(2000); //delay time    //(시간을 잘못 조절하면 결과도 달라진다)
-        // await page.type('#txtSource','Hello World', {delay: 100} );
-        // await page.waitFor(2000);
-    
+
+
+        page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+
         //-----run in browser
-        // const dimensions = await page.evaluate(() => {
-        //     return {
-        //       width: document.documentElement.clientWidth,
-        //       height: document.documentElement.clientHeight,
-        //       deviceScaleFactor: window.devicePixelRatio
-        //     };
-        //   });
-        // console.log('Dimensions:', dimensions )   //Dimensions: { width: 800, height: 600, deviceScaleFactor: 1 }
+        var result = await page.evaluate(async() => {
+            let lastPageInfo =  $('#_review_paging a:last()').attr('onclick').match(/\d+/);
+            var lastPageNum = Number(lastPageInfo[0]);
+            var rs = [];
+            rs.push(['brand','id','date']);
+            if(lastPageNum >= 1){
+                for (let m = 1; m <= lastPageNum; m++) {
+                    console.log('======'+ m)
+                    if(m > 1){
+                        shop.detail.ReviewHandler.page(m, '_review_paging'); 
+                        await awaitFor(380)
+                    }
+                    $('#_review_list > li').each(function(i, v){
+                        let range1 = $(v).find('div.avg_area > span ');
+                        let info = [
+                            range1.find(':nth-child(1)').html(),
+                            range1.find(':nth-child(2)').html(),
+                            range1.find(':nth-child(3)').html()
+                        ]
+                        rs.push(info)
+                    })
+                }
+                return rs;
+            }
+
+            //延时执行
+            async function awaitFor(time=1000){
+                await new Promise(resolve => { setTimeout(resolve, time); });
+            }
+            // await awaitFor(1000)
+        }); 
+
+        console.log('rs:', result )   //Dimensions: { width: 800, height: 600, deviceScaleFactor: 1 }
     
+
+
+        //------------延迟执行
+        // await page.waitFor(4000)
+        // var result = await page.evaluate(async() => {
+            // console.log('1111111')
+            // await new Promise(function(resolve) { 
+            //     setTimeout(resolve, 1000)
+            //     console.log('222222')
+            // });
+            // console.log('33333333')
+            // // awaitRun(()=>{
+            // //     console.log('44444-----')
+            // // }, 1000)
+            // // await new Promise(function(resolve) { 
+            // //     setTimeout(resolve, 1000)
+            // //     console.log('444444')
+            // // });
+            // await awaitFor(1000)
+            // console.log('4444444++++++')
+            // await awaitFor(1000)
+            // console.log('4444444++++++')
+            // await awaitFor(1000)
+            // console.log('4444444++++++')
+
+            // console.log('55555555')
+            // return '77777777'
+        // }); 
     
+
         //----
         // let outhtml = await page.$eval('body', e => e.outerHTML);
         // console.log(outhtml)
@@ -59,9 +114,6 @@ exports.post = function (req, res, next) {
     
         // let rs = await page.$eval('#txtTarget', e => e.innerHTML);
         // console.log(rs);
-    
-    
-    
     
     
     
@@ -89,13 +141,13 @@ exports.post = function (req, res, next) {
     
 
         //------save pdf
-        await page.emulateMedia('screen')
-        await page.pdf({path: 'public/nshopreview.pdf'});
+        // await page.emulateMedia('screen')
+        // await page.pdf({path: 'public/nshopreview.pdf'});
     
 
 
         res.setHeader('Content-Type', 'application/json');
-		res.end(JSON.stringify({status: 200, datas: rs })); // open console error 
+		res.end(JSON.stringify({status: 200, datas: result })); // open console error 
 
     
         await browser.close();
