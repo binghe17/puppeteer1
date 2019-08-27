@@ -16,7 +16,7 @@
 <body>
     <div>
         screenshot demo
-        <input type="text" id="text1" value="https://papago.naver.com" />
+        <input type="text" id="text1" value="https://papago.naver.com" onkeydown="if(event.keyCode == 13) $('#btn1').click();"  />
         <button id="btn1">send</button>
         <span id="statusBox"></span>
         <div id="resultBox"></div>
@@ -34,7 +34,7 @@
                 dataType: "json",
                 success: function (res) {
                     console.log(res)
-                    if(res.status == 200) rs = '<img src="'+ res.src +'">';
+                    if(res.status == 200) rs = '<img src="'+ res.src +'?time='+ (+new Date()) +'">';
                     else rs = 'error';
                     $('#resultBox').html(rs);
                     $('#statusBox').html('');
